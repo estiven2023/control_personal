@@ -17,17 +17,16 @@ class Auth extends Controller
         $session = session();
         $model = new UserModel();
 
-        $email = $this->request->getVar('email');
+        $username = $this->request->getVar('username');
         $password = $this->request->getVar('password');
 
-        $user = $model->where('email', $email)->first();
+        $user = $model->where('username', $username)->first();
 
         if ($user) {
             if (password_verify($password, $user['password'])) {
                 $session->set([
                     'id' => $user['id'],
-                    'name' => $user['name'],
-                    'email' => $user['email'],
+                    'username' => $user['username'],
                     'role' => $user['role'],
                     'isLoggedIn' => true
                 ]);
@@ -48,4 +47,3 @@ class Auth extends Controller
         return redirect()->to('/login');
     }
 }
-

@@ -16,6 +16,10 @@ $routes->get('/empleados', 'Empleados::index', ['filter' => 'authGuard']); // Ge
 $routes->get('/employees', 'Employee::index');
 $routes->get('/employees/create', 'Employee::create');
 $routes->post('/employees/store', 'Employee::store');
+$routes->get('/employees/edit/(:num)', 'Employee::edit/$1');
+$routes->post('/employees/update/(:num)', 'Employee::update/$1');
+$routes->post('/employees/delete/(:num)', 'Employee::delete/$1');
+
 
 // Rutas para asistencias
 $routes->get('/attendance', 'Attendance::index');

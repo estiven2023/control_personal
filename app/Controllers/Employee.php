@@ -14,7 +14,27 @@ class Employee extends Controller
         }
 
         $model = new EmployeeModel();
-        $data['employees'] = $model->findAll();
+        
+        // Obtener el término de búsqueda
+        $search = $this->request->getGet('search');
+
+        // Configurar la paginación
+        $perPage = 10;  // Puedes ajustar la cantidad de elementos por página
+        $page = $this->request->getGet('page') ?? 1;
+
+        // Construir la consulta con búsqueda si hay un término
+        if ($search) {
+            $model->groupStart()
+                  ->like('name', $search)
+                  ->orLike('email', $search)
+                  ->orLike('position', $search)
+                  ->groupEnd();
+        }
+
+        // Obtener los empleados con la paginación
+        $data['employees'] = $model->paginate($perPage);
+        $data['pager'] = $model->pager;
+        $data['search'] = $search;
 
         return view('employees/index', $data);
     }
@@ -24,34 +44,75 @@ class Employee extends Controller
         return view('employees/create');
     }
 
-    public function store()
-{
-    $validation = \Config\Services::validation();
+    public function edit($id)
+    {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/login');
+        }
 
-    // Definir reglas de validación
-    $validation->setRules([
-        'name'     => 'required|min_length[3]|max_length[100]',
-        'email'    => 'required|valid_email|is_unique[employees.email]',
-        'position' => 'required|min_length[3]|max_length[50]',
-    ]);
+        $model = new EmployeeModel();
+        $data['employee'] = $model->find($id);
 
-    // Si la validación falla, redirigir con errores
-    if (!$this->validate($validation->getRules())) {
-        return redirect()->back()->withInput()->with('errors', $validation->getErrors());
+        if (!$data['employee']) {
+            return redirect()->to('/employees')->with('error', 'Empleado no encontrado.');
+        }
+
+        return view('employees/edit', $data);
     }
 
-    // Guardar el empleado en la base de datos si la validación es exitosa
-    $model = new EmployeeModel();
-    $model->insert([
-        'name'     => $this->request->getPost('name'),
-        'email'    => $this->request->getPost('email'),
-        'position' => $this->request->getPost('position'),
-    ]);
+    public function update($id)
+    {
+        $model = new EmployeeModel();
 
-    return redirect()->to('/employees')->with('success', 'Empleado creado con éxito');
+        // Validar los datos usando el modelo
+        $data = [
+            'name'     => $this->request->getPost('name'),
+            'email'    => $this->request->getPost('email'),
+            'position' => $this->request->getPost('position'),
+            'updated_by' => session()->get('user_id'),
+        ];
+
+        $validationResult = $model->validateEmployee($data, $id);
+
+        if ($validationResult !== true) {
+            return redirect()->back()->withInput()->with('errors', $validationResult);
+        }
+
+        // Guardar los datos
+        $model->saveEmployee($data, $id);
+
+        return redirect()->to('/employees')->with('success', 'Empleado actualizado correctamente.');
+    }
+
+    public function delete($id)
+    {
+        $model = new EmployeeModel();
+        $model->delete($id);
+        return redirect()->to('/employees')->with('success', 'Empleado eliminado correctamente.');
+    }
+
+    public function store()
+    {
+        $model = new EmployeeModel();
+
+        // Obtener los datos
+        $data = [
+            'name'     => $this->request->getPost('name'),
+            'email'    => $this->request->getPost('email'),
+            'position' => $this->request->getPost('position'),
+            'created_by' => session()->get('user_id'),
+        ];
+
+        // Validar los datos usando el modelo
+        $validationResult = $model->validateEmployee($data);
+
+        if ($validationResult !== true) {
+            return redirect()->back()->withInput()->with('errors', $validationResult);
+        }
+
+        // Guardar los datos
+        $model->saveEmployee($data);
+
+        return redirect()->to('/employees')->with('success', 'Empleado creado con éxito');
+    }
 }
-
-
-
-}
-

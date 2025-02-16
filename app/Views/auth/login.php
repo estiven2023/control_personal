@@ -40,8 +40,8 @@
 
         <form action="<?= base_url('/auth') ?>" method="post" class="space-y-6">
             <div class="animate-fadeIn" style="animation-delay: 0.2s;">
-                <label class="block text-gray-300">Email:</label>
-                <input type="email" name="email" required 
+                <label class="block text-gray-300">Usuario:</label>
+                <input type="text" name="username" required 
                     class="w-full px-4 py-2 mt-1 bg-gray-700 border border-gray-600 rounded-md text-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all duration-300">
             </div>
             

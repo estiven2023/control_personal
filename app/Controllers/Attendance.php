@@ -5,57 +5,39 @@ namespace App\Controllers;
 use App\Models\AttendanceModel;
 use App\Models\EmployeeModel;
 use CodeIgniter\Controller;
+use CodeIgniter\I18n\Time;
+
 
 class Attendance extends Controller
 {
 
-public function index()
-{
-    if (!session()->get('isLoggedIn')) {
-        return redirect()->to('/login');
-    }
-
-    $attendanceModel = new AttendanceModel();
-    $employeeModel = new EmployeeModel();
-
-    // Obtener todos los empleados
-    $employees = $employeeModel->findAll();
-
-    // Inicializar un array de registros de asistencia vacíos
-    $attendanceRecords = [];
-
-    // Obtener registros de asistencia, si los hay
-    foreach ($employees as $employee) {
-        $attendance = $attendanceModel->where('employee_id', $employee['id'])
-                                      ->where('DATE(check_in)', date('Y-m-d'))
-                                      ->first();
-
-        if ($attendance) {
-            // Si tiene registros de asistencia en el día de hoy, añádelos al array
+    public function index()
+    {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/login');
+        }
+    
+        $attendanceModel = new AttendanceModel();
+        $employeeModel = new EmployeeModel();
+        $employees = $employeeModel->findAll();
+        $attendanceRecords = [];
+    
+        foreach ($employees as $employee) {
+            $attendance = $attendanceModel->where('employee_id', $employee['id'])
+                                            ->where('DATE(check_in)', date('Y-m-d'))
+                                            ->first();
+    
             $attendanceRecords[] = [
-                'id' => $attendance['id'],
-                'employee_id' => $attendance['employee_id'],
-                'name' => $employee['name'],
-                'check_in' => $attendance['check_in'],
-                'check_out' => $attendance['check_out'],
-            ];
-        } else {
-            // Si no tiene registros de asistencia, también lo añades, pero con valores vacíos
-            $attendanceRecords[] = [
-                'id' => null,
+                'id' => $attendance['id'] ?? null,
                 'employee_id' => $employee['id'],
                 'name' => $employee['name'],
-                'check_in' => 'No registrado',
-                'check_out' => 'No registrado',
+                'check_in' => isset($attendance['check_in']) ? Time::parse($attendance['check_in'])->toLocalizedString('d M Y, h:i A') : 'No registrado',
+                'check_out' => isset($attendance['check_out']) ? Time::parse($attendance['check_out'])->toLocalizedString('d M Y, h:i A') : 'No registrado',
             ];
         }
+    
+        return view('attendance/index', ['attendanceRecords' => $attendanceRecords]);
     }
-
-    // Pasar los datos a la vista
-    $data['attendanceRecords'] = $attendanceRecords;
-
-    return view('attendance/index', $data);
-}
 
 
 

@@ -1,0 +1,28 @@
+<?php
+
+namespace App\Database\Migrations;
+
+use CodeIgniter\Database\Migration;
+
+class AddTimestampsToEmployees extends Migration
+{
+    public function up()
+    {
+        $this->forge->addColumn('employees', [
+            'created_at' => [
+                'type' => 'TIMESTAMP',
+                'null' => true,
+            ],
+            'updated_at' => [
+                'type' => 'TIMESTAMP',
+                'null' => true,
+                'on_update' => 'CURRENT_TIMESTAMP',
+            ],
+        ]);
+    }
+
+    public function down()
+    {
+        $this->forge->dropColumn('employees', ['created_at', 'updated_at']);
+    }
+}
