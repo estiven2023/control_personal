@@ -6,12 +6,12 @@ use CodeIgniter\Model;
 
 class EmployeeModel extends Model
 {
-    protected $table      = 'employees';
+    protected $table = 'employees';
     protected $primaryKey = 'id';
     protected $allowedFields = ['name', 'email', 'position', 'created_by', 'updated_by'];
     protected $useTimestamps = true;
-    protected $createdField  = 'created_at';
-    protected $updatedField  = 'updated_at';
+    protected $createdField = 'created_at';
+    protected $updatedField = 'updated_at';
 
     protected $validationRules = [
         'name'     => 'required|min_length[3]|max_length[100]',
@@ -37,6 +37,13 @@ class EmployeeModel extends Model
         ],
     ];
 
+    /**
+     * Valida los datos del empleado.
+     *
+     * @param array $data Datos a validar.
+     * @param int|null $id ID del empleado (para actualización).
+     * @return array|true
+     */
     public function validateEmployee($data, $id = null)
     {
         if ($id) {
@@ -50,6 +57,13 @@ class EmployeeModel extends Model
         return true;
     }
 
+    /**
+     * Guarda o actualiza un empleado.
+     *
+     * @param array $data Datos del empleado.
+     * @param int|null $id ID del empleado (para actualización).
+     * @return bool
+     */
     public function saveEmployee($data, $id = null)
     {
         if ($id) {

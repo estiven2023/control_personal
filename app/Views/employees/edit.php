@@ -10,7 +10,7 @@
     <div class="max-w-lg mx-auto bg-gray-800 p-6 rounded-xl shadow-xl">
         <h2 class="text-3xl font-bold text-center mb-6">Editar Empleado</h2>
 
-        <form action="<?= base_url('/employees/update/' . $employee['id']) ?>" method="post" onsubmit="return validateForm()">
+        <form action="<?= base_url('/empleados/actualizar/' . $employee['id']) ?>" method="post" onsubmit="return validateForm()">
             <label class="block text-gray-300">Nombre:</label>
             <input type="text" id="name" name="name" value="<?= $employee['name'] ?>" required minlength="3" maxlength="100"
                    class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white">

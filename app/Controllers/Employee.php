@@ -10,19 +10,14 @@ class Employee extends Controller
     public function index()
     {
         if (!session()->get('isLoggedIn')) {
-            return redirect()->to('/login');
+            return redirect()->to('/iniciar-sesion');
         }
 
         $model = new EmployeeModel();
-        
-        // Obtener el término de búsqueda
         $search = $this->request->getGet('search');
-
-        // Configurar la paginación
-        $perPage = 10;  // Puedes ajustar la cantidad de elementos por página
+        $perPage = 10;
         $page = $this->request->getGet('page') ?? 1;
 
-        // Construir la consulta con búsqueda si hay un término
         if ($search) {
             $model->groupStart()
                   ->like('name', $search)
@@ -31,7 +26,6 @@ class Employee extends Controller
                   ->groupEnd();
         }
 
-        // Obtener los empleados con la paginación
         $data['employees'] = $model->paginate($perPage);
         $data['pager'] = $model->pager;
         $data['search'] = $search;
@@ -41,61 +35,33 @@ class Employee extends Controller
 
     public function create()
     {
-        return view('employees/create');
-    }
-
-    public function edit($id)
-    {
         if (!session()->get('isLoggedIn')) {
-            return redirect()->to('/login');
+            return redirect()->to('/iniciar-sesion');
         }
 
-        $model = new EmployeeModel();
-        $data['employee'] = $model->find($id);
-
-        if (!$data['employee']) {
-            return redirect()->to('/employees')->with('error', 'Empleado no encontrado.');
-        }
-
-        return view('employees/edit', $data);
-    }
-
-    public function update($id)
-    {
-        $model = new EmployeeModel();
-
-        // Validar los datos usando el modelo
-        $data = [
-            'name'     => $this->request->getPost('name'),
-            'email'    => $this->request->getPost('email'),
-            'position' => $this->request->getPost('position'),
-            'updated_by' => session()->get('user_id'),
-        ];
-
-        $validationResult = $model->validateEmployee($data, $id);
-
-        if ($validationResult !== true) {
-            return redirect()->back()->withInput()->with('errors', $validationResult);
-        }
-
-        // Guardar los datos
-        $model->saveEmployee($data, $id);
-
-        return redirect()->to('/employees')->with('success', 'Empleado actualizado correctamente.');
-    }
-
-    public function delete($id)
-    {
-        $model = new EmployeeModel();
-        $model->delete($id);
-        return redirect()->to('/employees')->with('success', 'Empleado eliminado correctamente.');
+        return view('employees/create');
     }
 
     public function store()
     {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/iniciar-sesion');
+        }
+
         $model = new EmployeeModel();
 
-        // Obtener los datos
+        // Validar los datos
+        $rules = [
+            'name'     => 'required|min_length[3]|max_length[255]',
+            'email'    => 'required|valid_email|is_unique[employees.email]',
+            'position' => 'required|min_length[3]|max_length[255]',
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        // Guardar los datos
         $data = [
             'name'     => $this->request->getPost('name'),
             'email'    => $this->request->getPost('email'),
@@ -103,16 +69,69 @@ class Employee extends Controller
             'created_by' => session()->get('user_id'),
         ];
 
-        // Validar los datos usando el modelo
-        $validationResult = $model->validateEmployee($data);
+        if ($model->save($data)) {
+            return redirect()->to('/empleados')->with('success', 'Empleado creado con éxito');
+        } else {
+            return redirect()->back()->withInput()->with('errors', $model->errors());
+        }
+    }
 
-        if ($validationResult !== true) {
-            return redirect()->back()->withInput()->with('errors', $validationResult);
+    public function edit($id)
+    {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/iniciar-sesion');
+        }
+
+        $model = new EmployeeModel();
+        $data['employee'] = $model->find($id);
+
+        if (!$data['employee']) {
+            return redirect()->to('/empleados')->with('error', 'Empleado no encontrado.');
+        }
+
+        return view('employees/edit', $data);
+    }
+
+    public function update($id)
+    {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/iniciar-sesion');
+        }
+
+        $model = new EmployeeModel();
+
+        // Validar los datos
+        $rules = [
+            'name'     => 'required|min_length[3]|max_length[255]',
+            'email'    => "required|valid_email|is_unique[employees.email,id,{$id}]",
+            'position' => 'required|min_length[3]|max_length[255]',
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
         // Guardar los datos
-        $model->saveEmployee($data);
+        $data = [
+            'name'     => $this->request->getPost('name'),
+            'email'    => $this->request->getPost('email'),
+            'position' => $this->request->getPost('position'),
+            'updated_by' => session()->get('user_id'),
+        ];
 
-        return redirect()->to('/employees')->with('success', 'Empleado creado con éxito');
+        $model->update($id, $data);
+
+        return redirect()->to('/empleados')->with('success', 'Empleado actualizado correctamente.');
+    }
+
+    public function delete($id)
+    {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/iniciar-sesion');
+        }
+
+        $model = new EmployeeModel();
+        $model->delete($id);
+        return redirect()->to('/empleados')->with('success', 'Empleado eliminado correctamente.');
     }
 }

@@ -3,36 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <title>Reporte Total de Horas Trabajadas</title>
-    <style>
-        body { font-family: Arial, sans-serif; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid black; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h2>Reporte Total de Horas Trabajadas</h2>
-    <p>Rango de fechas: <?= esc($_GET['start_date'] ?? '') ?> - <?= esc($_GET['end_date'] ?? '') ?></p>
-    
-    <table>
-        <thead>
-            <tr>
-                <th>Nombre del Empleado</th>
-                <th>Total de Horas Trabajadas</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($records as $record): ?>
-                <tr>
-                    <td><?= esc($record['employee_name']) ?></td>
-                    <td><?= esc($record['total_hours']) ?> horas</td>
+<body class="bg-gray-100 font-sans flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-4xl p-8 bg-white rounded-lg shadow-lg">
+        <h2 class="text-3xl text-center text-green-600 font-semibold mb-6">Reporte Total de Horas Trabajadas</h2>
+        <p class="text-center text-gray-700 mb-6 text-lg">Rango de fechas: <span class="font-bold"><?= esc($_GET['start_date'] ?? '') ?> - <?= esc($_GET['end_date'] ?? '') ?></span></p>
+        
+        <table class="min-w-full table-auto border-separate border-spacing-0">
+            <thead>
+                <tr class="bg-green-100 text-left">
+                    <th class="px-6 py-3 text-sm font-medium text-gray-700">Nombre del Empleado</th>
+                    <th class="px-6 py-3 text-sm font-medium text-gray-700">Total de Horas Trabajadas</th>
                 </tr>
-            <?php endforeach; ?>
-            <tr>
-                <td><strong>Total General de Horas Trabajadas</strong></td>
-                <td><strong><?= esc($grand_total) ?> horas</strong></td>
-            </tr>
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                <?php foreach ($records as $record): ?>
+                    <tr class="border-t hover:bg-gray-50">
+                        <td class="px-6 py-4 text-sm text-gray-800"><?= esc($record['employee_name']) ?></td>
+                        <td class="px-6 py-4 text-sm text-gray-800"><?= esc($record['total_hours']) ?> horas</td>
+                    </tr>
+                <?php endforeach; ?>
+                <tr class="border-t bg-gray-100 font-bold">
+                    <td class="px-6 py-4 text-sm text-gray-800">Total General de Horas Trabajadas</td>
+                    <td class="px-6 py-4 text-sm text-gray-800"><?= esc($grand_total) ?> horas</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>
