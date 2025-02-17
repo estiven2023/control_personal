@@ -5,48 +5,56 @@
     <title>Registro de Asistencia</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-900 text-white p-6">
-    <div class="max-w-5xl mx-auto p-6 rounded-xl bg-gray-800 shadow-xl">
-        <h2 class="text-3xl font-bold text-center mb-6">Registro de Asistencia</h2>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-4">
+        <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Registro de Asistencia</h2>
 
+        <!-- Mensajes de éxito/error -->
         <?php if (session()->getFlashdata('success')): ?>
-            <div class="bg-green-600 p-4 mb-4 rounded-md"><?= session()->getFlashdata('success') ?></div>
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                <?= session()->getFlashdata('success') ?>
+            </div>
         <?php endif; ?>
 
         <?php if (session()->getFlashdata('error')): ?>
-            <div class="bg-red-600 p-4 mb-4 rounded-md"><?= session()->getFlashdata('error') ?></div>
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <?= session()->getFlashdata('error') ?>
+            </div>
         <?php endif; ?>
 
-        <table class="w-full border-collapse bg-gray-700 rounded-lg overflow-hidden">
-            <thead class="bg-gray-600">
-                <tr>
-                    <th>ID</th><th>Empleado</th><th>Entrada</th><th>Salida</th><th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($attendanceRecords as $record): ?>
-                    <tr class="border-b border-gray-600">
-                        <td><?= $record['id'] ?></td>
-                        <td><?= $record['name'] ?></td>
-                        <td><?= $record['check_in'] ?: 'No registrado' ?></td>
-                        <td><?= $record['check_out'] ?: 'No registrado' ?></td>
-                        <td>
-                            <?php 
-                            $checkIn = $record['check_in'] ?? null;
-                            $checkOut = $record['check_out'] ?? null;
-
-                            if (!$checkIn): ?>
-                                <a href="<?= base_url('/asistencia/entrada/' . $record['id']) ?>" class="text-blue-600">📌 Check-in</a>
-                            <?php elseif (!$checkOut): ?>
-                                <a href="<?= base_url('/asistencia/salida/' . $record['id']) ?>" class="text-green-600">✅ Check-out</a>
-                            <?php else: ?>
-                                🕒 Completado
-                            <?php endif; ?>
-                        </td>
+        <!-- Tabla de asistencia -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <table class="min-w-full table-auto">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="px-4 py-2 text-left">ID</th>
+                        <th class="px-4 py-2 text-left">Empleado</th>
+                        <th class="px-4 py-2 text-left">Entrada</th>
+                        <th class="px-4 py-2 text-left">Salida</th>
+                        <th class="px-4 py-2 text-left">Acciones</th>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <?php foreach ($attendanceRecords as $record): ?>
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="px-4 py-2"><?= $record['id'] ?></td>
+                            <td class="px-4 py-2"><?= $record['name'] ?></td>
+                            <td class="px-4 py-2"><?= $record['check_in'] ?: 'No registrado' ?></td>
+                            <td class="px-4 py-2"><?= $record['check_out'] ?: 'No registrado' ?></td>
+                            <td class="px-4 py-2">
+                                <?php if (!$record['check_in']): ?>
+                                    <a href="<?= base_url('/asistencia/entrada/' . $record['id']) ?>" class="text-blue-600 hover:text-blue-800">📌 Check-in</a>
+                                <?php elseif (!$record['check_out']): ?>
+                                    <a href="<?= base_url('/asistencia/salida/' . $record['id']) ?>" class="text-green-600 hover:text-green-800">✅ Check-out</a>
+                                <?php else: ?>
+                                    🕒 Completado
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </body>
 </html>
