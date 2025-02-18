@@ -17,13 +17,21 @@ class Attendance extends Controller
         $attendanceModel = new AttendanceModel();
         $employeeModel = new EmployeeModel();
 
+        $data['attendanceStats'] = $attendanceModel->getAttendanceStatsLast7Days();
+
         // Asegurar que se listan todos los empleados, aunque no hayan hecho check-in
         $attendanceRecords = $employeeModel->select('employees.id, employees.name, attendance.check_in, attendance.check_out')
             ->join('attendance', 'attendance.employee_id = employees.id AND DATE(attendance.check_in) = CURDATE()', 'left')
             ->orderBy('employees.id', 'ASC')
             ->findAll();
 
-        return view('attendance/index', ['attendanceRecords' => $attendanceRecords]);
+            return view('attendance/index', [
+                'attendanceRecords' => $attendanceRecords,
+                'attendanceStats' => $data['attendanceStats']  // Agrega esta línea
+            ]);
+
+            
+            
     }
 
     public function selfAttendance()

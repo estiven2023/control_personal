@@ -28,4 +28,12 @@ class AttendanceModel extends Model
             ->where('check_out <=', $end_date . ' 23:59:59')
             ->first();
     }
+
+    public function getAttendanceStatsLast7Days()
+    {
+        return $this->select("DATE(check_in) as date, COUNT(*) as total_attendances")
+                    ->where('check_in >=', date('Y-m-d', strtotime('-7 days')))
+                    ->groupBy('DATE(check_in)')
+                    ->findAll();
+    }
 }
